@@ -1,9 +1,9 @@
-import requests
 import pandas as pd
 import genanki
 import html
 
 from enum import Enum
+
 
 class Field(str, Enum):
     WORD = "Word"
@@ -14,9 +14,7 @@ class Field(str, Enum):
     VERB = "Verb"
     MODIFIER = "Modifier"
     ORIGIN = "Origin"
-    IPA = "IPA"
     FAMILY = "Family"
-
 
 # Define the CSS for your cards
 my_css = """
@@ -65,15 +63,11 @@ model = genanki.Model(
 
 url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTVGXFd17kcvfu__zjshqiV3kW360IclOEfEdWda_K6ZCg4TY6nW2Gwn4_bs1yQeFLwrZI1_xEvSuP0/pub?gid=0&single=true&output=csv'
 
-response = requests.get(url)
-
-csv_content = response.content.decode('utf-8')
-
 df = pd.read_csv(url).fillna('')
 
 kokanu_deck = genanki.Deck(
-  4564564565445,
-  'Kokanu Vocab')
+    4564564565445,
+    'Kokanu Vocab')
 
 for index, row in df.iterrows():
     note = genanki.Note(
@@ -81,6 +75,4 @@ for index, row in df.iterrows():
         fields=list(map(lambda x: html.escape(row[x.value]), Field)))
     kokanu_deck.add_note(note)
 
-
 genanki.Package(kokanu_deck).write_to_file('kokanu/kokanu_deck.apkg')
-
