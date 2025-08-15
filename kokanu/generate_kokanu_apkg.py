@@ -82,5 +82,5 @@ for index, row in df.iterrows():
     kokanu_deck.add_note(note)
 
 
-genanki.Package(kokanu_deck).write_to_file('kokanu_deck.apkg')
+genanki.Package(kokanu_deck).write_to_file('kokanu/kokanu_deck.apkg')
 
