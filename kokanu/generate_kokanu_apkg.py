@@ -1,3 +1,5 @@
+import random
+
 import pandas as pd
 import genanki
 import html
@@ -32,7 +34,7 @@ my_css = """
 """
 
 model = genanki.Model(
-    1607392319545645645,
+    random.randint(1, 10000000000),
     'Kokanu model',
     fields=list(map(lambda x: {'name': x.value}, Field)),
     templates=[
@@ -71,7 +73,7 @@ url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTVGXFd17kcvfu__zjshqiV3k
 df = pd.read_csv(url).fillna('').sample(frac=1).reset_index(drop=True)
 
 kokanu_deck = genanki.Deck(
-    4564564565445,
+    random.randint(1, 10000000000),
     'Kokanu Vocab')
 
 for index, row in df.iterrows():
