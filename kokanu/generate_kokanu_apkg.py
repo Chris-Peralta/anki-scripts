@@ -1,4 +1,6 @@
 import random
+from email.policy import default
+from tabnanny import verbose
 
 import pandas as pd
 import genanki
@@ -17,6 +19,11 @@ class Field(str, Enum):
     ORIGIN = "Origin"
     FAMILY = "Family"
 
+class Kokanu(str, Enum):
+    NOUN = "ikama sin"
+    VERB = "ikama tun"
+    MODIFIER = "ikama kun"
+
 # Define the CSS for your cards
 my_css = """
 .card {
@@ -29,40 +36,78 @@ my_css = """
 .pos {
     font-size: 12px;
     text-transform: lowercase;
-    padding: 10px;
 }
 """
+
+def create_meaning_html(part_of_speech: str, meaning_field: str) -> str:
+    return '''
+<div class="pos">''' + part_of_speech + '''</div>
+{{''' + meaning_field + '''}}
+'''
+
+default_meaning_html = create_meaning_html('{{' + Field.TYPE.value + '}}', Field.MEANING.value)
+
+verb_meaning_html = create_meaning_html(Kokanu.VERB.value, Field.VERB.value)
+
+noun_meaning_html = create_meaning_html(Kokanu.NOUN.value, Field.NOUN.value)
+
+modifier_meaning_html = create_meaning_html(Kokanu.MODIFIER.value, Field.MODIFIER.value)
+
+# Leaving multi-line formatting to make this readable to the end user
+meaning_html = default_meaning_html + '''
+
+<br>
+<br>''' + verb_meaning_html + '''
+
+<br>
+<br> ''' + noun_meaning_html + '''
+
+<br>
+<br>''' + modifier_meaning_html
+
+def create_template(name: str, question_format: str, answer_format: str) -> dict[str, str]:
+    return {
+        'name': name,
+        'qfmt': question_format,
+        'afmt': answer_format,
+    }
+
+def create_basic_kokanu_first_template() -> dict[str, str]:
+    question_format = '{{' + Field.WORD.value + '}}'
+    answer_format = '''
+{{FrontSide}}
+
+<hr id="answer"> 
+
+<br>''' + meaning_html + '''
+'''
+    return create_template('Card 1', question_format, answer_format)
+
+
+def create_basic_typed_meaning_first_template() -> dict[str, str]:
+    question_format = '''
+<br>''' + meaning_html + '''
+
+<br>
+<br>
+{{type:''' + Field.WORD.value + '''}}
+'''
+    answer_format = '{{FrontSide}}<hr id="answer"> {{' + Field.WORD.value + '}}'
+    return create_template('Card 2', question_format, answer_format)
+
 
 model = genanki.Model(
     random.randint(1, 10000000000),
     'Kokanu model',
     fields=list(map(lambda x: {'name': x.value}, Field)),
     templates=[
-        {
-            'name': 'Card 1',
-            'qfmt': '{{' + Field.WORD.value + '}}<br><div class="pos">{{' + Field.TYPE.value + '}}</div><br>',
-            'afmt': '{{FrontSide}}<hr id="answer"> {{' + Field.MEANING.value + ' }}',
-        },
-        {
-            'name': 'Card 2',
-            'qfmt': '{{' + Field.WORD.value + '}}<br><div class="pos">' + Field.NOUN.name + '</div><br>',
-            'afmt': '{{FrontSide}}<hr id="answer"> {{' + Field.NOUN.value + ' }}',
-        },
-        {
-            'name': 'Card 3',
-            'qfmt': '{{' + Field.WORD.value + '}}<br><div class="pos">' + Field.VERB.name + '</div><br>',
-            'afmt': '{{FrontSide}}<hr id="answer"> {{' + Field.VERB.value + ' }}',
-        },
-        {
-            'name': 'Card 4',
-            'qfmt': '{{' + Field.MODIFIER.value + '}}<br><div class="pos">' + Field.MODIFIER.name + '</div><br>',
-            'afmt': '{{FrontSide}}<hr id="answer"> {{' + Field.MODIFIER.value + ' }}',
-        },
-        {
-            'name': 'Card 5',
-            'qfmt': '{{' + Field.LIKANU.value + '}}<br>',
-            'afmt': '{{FrontSide}}<hr id="answer"> {{' + Field.WORD.value + ' }}',
-        }
+        create_basic_kokanu_first_template(),
+        create_basic_typed_meaning_first_template(),
+        create_template(
+            'Card 3',
+            '{{' + Field.LIKANU.value + '}}<br>',
+            '{{FrontSide}}<hr id="answer"> {{' + Field.WORD.value + ' }}'
+        )
     ],
     css=my_css,
 )
