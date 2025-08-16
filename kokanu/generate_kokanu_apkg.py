@@ -26,7 +26,8 @@ my_css = """
 }
 .pos {
     font-size: 12px;
-    text-transform: lowercaseaan;
+    text-transform: lowercase;
+    padding: 10px;
 }
 """
 
